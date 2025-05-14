@@ -7,6 +7,14 @@ import os
 from resume_parser import resumeparse
 from sentence_transformers import SentenceTransformer, util
 import json
+import spacy.cli  # ✅ Include spaCy CLI for downloading the model
+
+# Ensure en_core_web_sm model is available
+try:
+    import en_core_web_sm
+except ImportError:
+    spacy.cli.download("en_core_web_sm")  # ✅ Download if missing
+    import en_core_web_sm
 
 app = FastAPI(title="Resume Scorer API")
 
@@ -30,7 +38,6 @@ async def score_resume(
     file: UploadFile = File(...),
     job_description: str = Form(None)
 ):
-    # Save uploaded file to temp
     suffix = os.path.splitext(file.filename)[-1]
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         tmp.write(await file.read())
@@ -39,7 +46,6 @@ async def score_resume(
     try:
         resume_text, parsed_data = extract_resume_text(tmp_path)
 
-        # Embed and calculate similarity if JD is provided
         job_score = None
         if job_description:
             embeddings = model.encode([resume_text, job_description], convert_to_tensor=True)

@@ -3,4 +3,3 @@ uvicorn
 resume-parser
 sentence-transformers
 python-multipart
-resume-scorer-api
