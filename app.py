@@ -7,13 +7,14 @@ import os
 from resume_parser import resumeparse
 from sentence_transformers import SentenceTransformer, util
 import json
-import spacy.cli  # ✅ Include spaCy CLI for downloading the model
+import spacy.cli
 
 # Ensure en_core_web_sm model is available
 try:
     import en_core_web_sm
 except ImportError:
-    spacy.cli.download("en_core_web_sm")  # ✅ Download if missing
+    print("Downloading spaCy model 'en_core_web_sm'...")
+    spacy.cli.download("en_core_web_sm")
     import en_core_web_sm
 
 app = FastAPI(title="Resume Scorer API")
