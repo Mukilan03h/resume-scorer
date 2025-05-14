@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+resume-parser
+sentence-transformers
+python-multipart
