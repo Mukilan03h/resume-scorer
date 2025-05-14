@@ -1,6 +1,7 @@
 fastapi
 uvicorn
-resume-parser
 sentence-transformers
 python-multipart
 nltk
+PyPDF2
+docx2txt
