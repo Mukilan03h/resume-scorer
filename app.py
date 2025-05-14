@@ -1,21 +1,44 @@
+import sys
+import subprocess
+import pkg_resources
+
+# Function to check and install missing packages
+def ensure_packages():
+    required = {'nltk', 'resume-parser', 'sentence-transformers', 'python-multipart'}
+    installed = {pkg.key for pkg in pkg_resources.working_set}
+    missing = required - installed
+    
+    if missing:
+        print(f"Installing missing packages: {missing}")
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', *missing])
+
+# Ensure all packages are installed
+ensure_packages()
+
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 import uvicorn
 import tempfile
 import os
+import json
+import nltk
+
+# Ensure NLTK data is downloaded
+nltk_resources = ['punkt', 'stopwords', 'averaged_perceptron_tagger', 'maxent_ne_chunker', 'words']
+for resource in nltk_resources:
+    try:
+        nltk.data.find(f'tokenizers/{resource}' if resource == 'punkt' 
+                      else f'corpora/{resource}' if resource in ['stopwords', 'words'] 
+                      else f'taggers/{resource}' if resource == 'averaged_perceptron_tagger'
+                      else f'chunkers/{resource}')
+    except LookupError:
+        print(f"Downloading NLTK resource: {resource}")
+        nltk.download(resource)
+
+# Import after ensuring packages are installed
 from resume_parser import resumeparse
 from sentence_transformers import SentenceTransformer, util
-import json
-import spacy.cli
-
-# Ensure en_core_web_sm model is available
-try:
-    import en_core_web_sm
-except ImportError:
-    print("Downloading spaCy model 'en_core_web_sm'...")
-    spacy.cli.download("en_core_web_sm")
-    import en_core_web_sm
 
 app = FastAPI(title="Resume Scorer API")
 
